@@ -1,0 +1,27 @@
+flowchart TB
+  A[同一张原始图像] --> G[2 个 Global Crops]
+  A --> L[多个 Local Crops]
+
+  subgraph ENC[Student / Teacher 编码]
+    G --> T[EMA Teacher ViT]
+    G --> S[Student ViT]
+    L --> S
+    M[随机 Mask Patch] --> S
+    S -. EMA 参数更新 .-> T
+  end
+
+  subgraph CLS[DINO 图像级分支]
+    T --> TC[Teacher CLS + DINO Head]
+    S --> SC[Student CLS + DINO Head]
+    TC --> LD[DINO Cross Entropy]
+    SC --> LD
+  end
+
+  subgraph PATCH[iBOT Patch 级分支]
+    T --> TP[Teacher Patch + iBOT Head]
+    S --> SP[Masked Patch + iBOT Head]
+    TP --> LI[iBOT Patch Cross Entropy]
+    SP --> LI
+  end
+
+  S --> K[KoLeo：拉开 Batch 内最近邻特征]
