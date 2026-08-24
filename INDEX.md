@@ -24,3 +24,6 @@
 | 20 | 视觉表征模型：CLIP/SigLIP/DINO 结构、Loss 与用途 | 20_视觉表征模型_CLIP_SigLIP_DINO对比.md | 2026-08-03 |
 | 21 | 生成与编辑联合预训练：Z-Image 的 T2I/I2I 统一训练 | 21_ZImage生成编辑联合预训练.md | 2026-08-03 |
 | 22 | 图像文本条件 Context Scaling：信息量而非 Prompt 长度 | 22_图像文本条件ContextScaling.md | 2026-08-03 |
+| 23 | TBSM 迁移 FireRed：单步编辑可行性、数据量与训练成本 | 23_TBSM迁移FireRed单步编辑.md | 2026-08-10 |
+| 24 | Session A/B、A/B Test、Elo 与 Emochi 模型迭代 | 24_SessionAB_ABTest_Elo与Emochi迭代.md | 2026-08-10 |
+| 25 | 长程多参考图外部视觉记忆架构：VISTA 对长程生图的启发 | 25_长程多参考图外部视觉记忆架构.md | 2026-08-14 |
