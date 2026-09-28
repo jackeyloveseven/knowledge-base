@@ -1,0 +1,326 @@
+/* ============================================================
+   知识库教学工作区 — 共享样式
+   ============================================================ */
+
+:root {
+  --bg:       #faf8f4;
+  --bg-alt:   #f0ede6;
+  --text:     #2c2825;
+  --text-sub: #6b625a;
+  --accent:   #9b4a1f;
+  --border:   #d9d2c8;
+  --code-bg:  #edeae4;
+  --reveal-bg:#e8f0e8;
+  --reveal-border: #3a7a3a;
+  --warn-bg:  #fef5e4;
+  --warn-border: #c8902a;
+  --font-body: "Georgia", "Songti SC", "SimSun", serif;
+  --font-ui:   system-ui, -apple-system, "PingFang SC", sans-serif;
+  --font-code: "SF Mono", "Fira Code", "Courier New", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:       #1c1a17;
+    --bg-alt:   #252219;
+    --text:     #e8e0d4;
+    --text-sub: #9a9080;
+    --accent:   #d4784a;
+    --border:   #3a3630;
+    --code-bg:  #252219;
+    --reveal-bg:#1a2a1a;
+    --reveal-border: #4a9a4a;
+    --warn-bg:  #2a2010;
+    --warn-border: #b87a20;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 18px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.75;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+}
+
+/* ── Typography ── */
+
+h1 {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 2.5rem;
+  margin-bottom: 0.6rem;
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 1.8rem;
+  margin-bottom: 0.4rem;
+  color: var(--text-sub);
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+}
+
+p { margin-bottom: 1rem; }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid currentColor; }
+a:hover { opacity: 0.75; }
+
+strong { font-weight: 700; }
+em { font-style: italic; }
+
+code {
+  font-family: var(--font-code);
+  font-size: 0.82em;
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--border);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  margin: 1.2rem 0;
+  border-radius: 4px;
+}
+
+pre code { background: none; padding: 0; }
+
+/* ── Math (KaTeX fallback styling) ── */
+.math { font-style: italic; }
+
+/* ── Header ── */
+
+.lesson-header {
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.lesson-meta {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.6rem;
+}
+
+.lesson-subtitle {
+  font-size: 1.05rem;
+  color: var(--text-sub);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+/* ── Instructions box ── */
+
+.instructions {
+  background: var(--warn-bg);
+  border-left: 3px solid var(--warn-border);
+  padding: 1rem 1.2rem;
+  margin-bottom: 2.5rem;
+  border-radius: 0 4px 4px 0;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+}
+
+.instructions p:last-child { margin-bottom: 0; }
+
+/* ── Quiz cards ── */
+
+.quiz-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.quiz-question {
+  padding: 1.2rem 1.4rem;
+  background: var(--bg-alt);
+}
+
+.quiz-number {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+.quiz-difficulty {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  padding: 0.15em 0.5em;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.diff-recall   { background: #d4edda; color: #155724; }
+.diff-apply    { background: #d1ecf1; color: #0c5460; }
+.diff-critical { background: #fff3cd; color: #856404; }
+.diff-transfer { background: #f8d7da; color: #721c24; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    .diff-recall   { background: #1a3a20; color: #7acc88; }
+    .diff-apply    { background: #102830; color: #5ec4d4; }
+    .diff-critical { background: #2a2008; color: #d4a44a; }
+    .diff-transfer { background: #2a1018; color: #d47a88; }
+  }
+}
+
+.quiz-q-text {
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.quiz-q-text p:last-child { margin-bottom: 0; }
+
+.quiz-reveal-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1.4rem;
+  background: var(--bg);
+  border: none;
+  border-top: 1px solid var(--border);
+  color: var(--accent);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  letter-spacing: 0.02em;
+  transition: background 0.15s;
+}
+
+.quiz-reveal-btn:hover { background: var(--bg-alt); }
+
+.quiz-answer {
+  display: none;
+  padding: 1.2rem 1.4rem;
+  background: var(--reveal-bg);
+  border-top: 2px solid var(--reveal-border);
+}
+
+.quiz-answer.visible { display: block; }
+
+.answer-label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--reveal-border);
+  margin-bottom: 0.8rem;
+}
+
+.quiz-answer p:last-child { margin-bottom: 0; }
+
+/* ── Connection challenge ── */
+
+.challenge {
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 1.4rem;
+  margin: 2.5rem 0;
+}
+
+.challenge-label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+/* ── Primary source ── */
+
+.primary-source {
+  background: var(--bg-alt);
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  margin: 2.5rem 0;
+}
+
+.primary-source-label {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-sub);
+  margin-bottom: 0.5rem;
+}
+
+/* ── Footer ── */
+
+.lesson-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--text-sub);
+}
+
+/* ── Table ── */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  margin: 1.2rem 0;
+  font-family: var(--font-ui);
+}
+
+th {
+  background: var(--bg-alt);
+  padding: 0.5rem 0.8rem;
+  text-align: left;
+  font-weight: 700;
+  border-bottom: 2px solid var(--border);
+}
+
+td {
+  padding: 0.5rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+tr:last-child td { border-bottom: none; }
+
+/* ── Utility ── */
+
+.text-sub { color: var(--text-sub); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }

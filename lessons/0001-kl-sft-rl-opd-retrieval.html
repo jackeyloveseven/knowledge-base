@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 01 课：KL 散度框架检索练习</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  .formula-box {
+    background: var(--code-bg);
+    border-left: 3px solid var(--border);
+    padding: 0.8rem 1.2rem;
+    margin: 0.8rem 0;
+    font-family: var(--font-code);
+    font-size: 0.9rem;
+    border-radius: 0 4px 4px 0;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+
+<header class="lesson-header">
+  <div class="lesson-meta">第 01 课 &nbsp;·&nbsp; 训练范式</div>
+  <h1>SFT / RL / OPD：KL 散度框架</h1>
+  <p class="lesson-subtitle">检索练习 — 先回忆，再核对</p>
+</header>
+
+<div class="instructions">
+  <p><strong>使用方式：</strong>这不是一篇讲解文——你应该已经读过笔记
+    <a href="../01_SFT_RL_OPD在DiT图像生成中的区别.md">01</a> 和
+    <a href="../10_SFT与RL的KL散度视角及On-Policy蒸馏.md">10</a>。</p>
+  <p>对每道题，<strong>先在脑中（或纸上）组织好完整答案</strong>，再点击展开。点得越晚，记忆越牢。</p>
+  <p>如有不确定的地方，直接向 Claude 提问——它是你的老师。</p>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Q1 — 回忆：SFT 的数学等价推导
+     ══════════════════════════════════════════════ -->
+<div class="quiz-card">
+  <div class="quiz-question">
+    <div class="quiz-number">
+      Q1 <span class="quiz-difficulty diff-recall">回忆</span>
+    </div>
+    <div class="quiz-q-text">
+      <p>SFT 的损失函数是：</p>
+      <div class="formula-box">L_SFT = −E_{(x,y)~D} [log p_θ(y|x)]</div>
+      <p>请写出完整推导，说明 <strong>最小化 L_SFT 等价于最小化哪个方向的 KL 散度</strong>，采样分布是谁。</p>
+    </div>
+  </div>
+  <button class="quiz-reveal-btn" onclick="reveal(this)">▶ 展开答案</button>
+  <div class="quiz-answer">
+    <div class="answer-label">答案</div>
+    <p>展开 L_SFT：</p>
+    <div class="formula-box">L_SFT = −E_{x~D} [ Σ_y p_data(y|x) · log p_θ(y|x) ]
+     = E_{x~D} [ H(p_data(·|x)) + KL(p_data(·|x) ‖ p_θ(·|x)) ]
+     = const + E_x [ KL(p_data ‖ p_θ) ]</div>
+    <p>因此：<strong>最小化 L_SFT ⟺ 最小化 Forward KL(p_data ‖ p_θ)</strong>。</p>
+    <p>采样分布是 <strong>p_data（训练数据，固定）</strong>——KL(P‖Q) 从 P 采样，这就是"Forward"的含义。</p>
+    <p>来源：MiniLLM (arXiv:2306.08543) §3.1 明确推导了这个等价性。</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Q2 — 回忆：行为特征对比
+     ══════════════════════════════════════════════ -->
+<div class="quiz-card">
+  <div class="quiz-question">
+    <div class="quiz-number">
+      Q2 <span class="quiz-difficulty diff-recall">回忆</span>
+    </div>
+    <div class="quiz-q-text">
+      <p>用"谁采样"+"惩罚什么"+"行为特征"三个维度，对比 Forward KL 和 Reverse KL 的根本差异。</p>
+      <p>不要看笔记，自己先填出这张表的内容：</p>
+      <table>
+        <thead><tr><th>维度</th><th>Forward KL(P‖Q)</th><th>Reverse KL(Q‖P)</th></tr></thead>
+        <tbody>
+          <tr><td>谁采样</td><td>?</td><td>?</td></tr>
+          <tr><td>重罚什么情形</td><td>?</td><td>?</td></tr>
+          <tr><td>行为特征</td><td>?</td><td>?</td></tr>
+          <tr><td>在图像生成中对应</td><td>?</td><td>?</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <button class="quiz-reveal-btn" onclick="reveal(this)">▶ 展开答案</button>
+  <div class="quiz-answer">
+    <div class="answer-label">答案</div>
+    <table>
+      <thead><tr><th>维度</th><th>Forward KL(P‖Q)</th><th>Reverse KL(Q‖P)</th></tr></thead>
+      <tbody>
+        <tr><td>谁采样</td><td>数据分布 P（固定）</td><td>模型自己 Q（在线）</td></tr>
+        <tr><td>重罚什么</td><td>Q 在 P 有概率处概率低（漏覆盖）</td><td>Q 在 P 概率极低处概率高（越界）</td></tr>
+        <tr><td>行为特征</td><td>Mode-covering（广撒网）</td><td>Mode-seeking（聚焦高 reward 区）</td></tr>
+        <tr><td>图像生成</td><td>SFT 微调；混质数据→图像模糊</td><td>GRPO/RL 对齐；可能 diversity 下降</td></tr>
+      </tbody>
+    </table>
+    <p>记忆口诀：Forward KL = <strong>"不能漏"</strong>（覆盖所有模式）；Reverse KL = <strong>"不能越"</strong>（不生成 P 不认可的东西）。</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Q3 — 应用：RLHF PPO 的 KL 惩罚项
+     ══════════════════════════════════════════════ -->
+<div class="quiz-card">
+  <div class="quiz-question">
+    <div class="quiz-number">
+      Q3 <span class="quiz-difficulty diff-apply">应用</span>
+    </div>
+    <div class="quiz-q-text">
+      <p>RLHF PPO 的目标函数为：</p>
+      <div class="formula-box">max E[ r(x,y) − β · KL(π_θ(·|x) ‖ π_ref(·|x)) ]</div>
+      <p><strong>KL 惩罚项是 Forward 还是 Reverse KL？</strong></p>
+      <p>请解释：（1）为什么是这个方向；（2）这个惩罚项在训练中实际起什么作用；（3）β 太大/太小分别会发生什么。</p>
+    </div>
+  </div>
+  <button class="quiz-reveal-btn" onclick="reveal(this)">▶ 展开答案</button>
+  <div class="quiz-answer">
+    <div class="answer-label">答案</div>
+    <p><strong>是 Reverse KL</strong>。KL(π_θ ‖ π_ref) 的采样分布是 π_θ（当前 policy 自己），所以是 Reverse KL。</p>
+    <p><strong>作用：</strong>reward 项把 π_θ 拉向高 reward 区域，KL 惩罚项把 π_θ 拉回 π_ref 附近，防止 reward hacking（策略偏离太远生成奇怪内容）。二者形成 tug-of-war。</p>
+    <p><strong>β 的 tradeoff：</strong></p>
+    <ul>
+      <li><strong>β 太大</strong>：KL 约束过紧 → 策略无法探索 → 退化成类 SFT 行为，reward 提不上去</li>
+      <li><strong>β 太小</strong>：KL 约束过松 → reward hacking → 策略崩坏（图像生成中典型表现：画面失真但 reward 高）</li>
+    </ul>
+    <p>RL's Razor (arXiv:2509.04259) 进一步表明：on-policy 训练天然具有低 KL 偏置，这是 RL 比 SFT 遗忘更少的关键机制。</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Q4 — 应用：OPD vs 传统 KD
+     ══════════════════════════════════════════════ -->
+<div class="quiz-card">
+  <div class="quiz-question">
+    <div class="quiz-number">
+      Q4 <span class="quiz-difficulty diff-apply">应用</span>
+    </div>
+    <div class="quiz-q-text">
+      <p>用"老师做题/学生做题"的比喻，在一句话内说出 <strong>On-Policy Distillation (OPD) 和传统 Knowledge Distillation (KD) 的根本区别</strong>。</p>
+      <p>然后回答：这个区别在 <strong>DiT latent diffusion 模型</strong>（非自回归）中重要吗？为什么？</p>
+    </div>
+  </div>
+  <button class="quiz-reveal-btn" onclick="reveal(this)">▶ 展开答案</button>
+  <div class="quiz-answer">
+    <div class="answer-label">答案</div>
+    <p><strong>一句话：</strong>传统 KD 是"老师做题、学生抄答案"（off-policy）；OPD 是"学生做题、老师当场批改"（on-policy）。</p>
+    <p><strong>在 DiT latent diffusion 中的重要性：</strong></p>
+    <p>⚠️ <strong>Exposure Bias 在这里不是主要动机。</strong>Exposure Bias (O(L²) 误差累积) 是自回归模型的问题——每个 token 依赖之前的 prefix。但 DiT 的去噪过程是 Markovian（每步只依赖当前噪声状态和 timestep），不是自回归的，<strong>天然没有 exposure bias</strong>。</p>
+    <p>OPD 在 DiT 中的真正价值是：<strong>提供比稀疏 RL reward 更 dense 的监督信号</strong>——每个去噪步骤都有教师的 transition 分布作为目标，信息量远大于最终的 scalar reward。</p>
+    <p>这个区分来自 Claude Opus 的审核意见（笔记 10 末尾），是重要的认知校正。</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Q5 — 批判分析：SFT score 陷阱
+     ══════════════════════════════════════════════ -->
+<div class="quiz-card">
+  <div class="quiz-question">
+    <div class="quiz-number">
+      Q5 <span class="quiz-difficulty diff-critical">批判分析</span>
+    </div>
+    <div class="quiz-q-text">
+      <p>有人说：</p>
+      <blockquote style="border-left:3px solid var(--border); padding-left:1rem; margin:0.8rem 0; color:var(--text-sub); font-style:italic;">
+        "SFT 之后，看 validation loss 收敛了、SFT score 也很高，这时候切 RL 最合适。"
+      </blockquote>
+      <p>这个说法有什么问题？至少指出两个 failure mode。</p>
+    </div>
+  </div>
+  <button class="quiz-reveal-btn" onclick="reveal(this)">▶ 展开答案</button>
+  <div class="quiz-answer">
+    <div class="answer-label">答案</div>
+    <p>这是 <strong>Quagmires in SFT-RL (arXiv:2510.01624)</strong> 明确指出的陷阱，至少有两个 failure mode：</p>
+    <p><strong>Failure 1 — SFT score 高 ≠ 好的 RL 起点：</strong>SFT score 偏向简单、同质化数据，可能只是在记忆常见模式，对真正需要泛化的 RL 任务没有预测力。用 <code>Pass@large_k</code> 或 generalization loss 更可靠。</p>
+    <p><strong>Failure 2 — SFT 过多 → Plasticity Loss：</strong>长时间 SFT 会压缩模型的权重更新空间（plasticity），导致 RL 阶段梯度无法有效改变参数，reward 无论如何都提不上去。（When RL Fails after SFT, arXiv:2606.09932）</p>
+    <p><strong>隐含问题（bonus）：</strong>SFT 的 Forward KL 特性会使模型记忆训练分布。SFT score 高意味着拟合得好，但这正是 mode-covering 的副产品——对 OOD prompt 泛化差（SFT Memorizes, RL Generalizes, arXiv:2501.17161）。</p>
+    <p><strong>建议做法：</strong>控制 SFT epoch，同时监控 generalization loss 而非训练 loss；或用 Rejuvenation（base-anchored model fusion）救回 plasticity。</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Q6 — 迁移：真实场景诊断
+     ══════════════════════════════════════════════ -->
+<div class="quiz-card">
+  <div class="quiz-question">
+    <div class="quiz-number">
+      Q6 <span class="quiz-difficulty diff-transfer">迁移</span>
+    </div>
+    <div class="quiz-q-text">
+      <p>你在用 GRPO 训练一个 DiT 图像编辑模型，reward = CLIP-I（图文对齐）+ DINO（结构保留）的加权组合。</p>
+      <p>训练 3000 步后，你观察到：模型输出开始收敛到高饱和度、高对比度风格，之前能生成的低饱和柔和风格逐渐消失。</p>
+      <p>请：（1）用 KL 框架诊断这个现象的根本原因；（2）提出至少两种解法，说明各自的 tradeoff。</p>
+    </div>
+  </div>
+  <button class="quiz-reveal-btn" onclick="reveal(this)">▶ 展开答案</button>
+  <div class="quiz-answer">
+    <div class="answer-label">答案</div>
+    <p><strong>诊断：</strong>这是 <strong>Reverse KL 的 mode-seeking 行为</strong> 与 <strong>reward 偏差</strong> 的叠加效应。</p>
+    <p>GRPO 优化 Reverse KL(π_θ ‖ π_ref)，天然倾向 mode-seeking——模型聚焦高 reward 区域，放弃低 reward 模式。如果 CLIP-I reward 天然偏好高对比度（CLIP 在训练数据中这类图像更多），模型会系统性地漂向这个风格，低饱和风格概率坍缩。</p>
+    <p><strong>解法 1 — 增大 β（KL 惩罚系数）：</strong>加强对 reference policy 的约束，限制策略偏移幅度。<em>Tradeoff</em>：reward 提升速度变慢，可能需要更多步数才能收敛。</p>
+    <p><strong>解法 2 — 修复 reward 偏差：</strong>检查 CLIP-I reward 的分布偏差，加入 diversity reward（如生成样本间的 LPIPS 距离），或用 f-DPO 把底层散度从 Reverse KL 改为 Forward KL 以保留多样性。<em>Tradeoff</em>：reward 工程复杂度上升，需要额外验证。</p>
+    <p><strong>解法 3 — OPD（如果条件允许）：</strong>分别训练"CLIP 对齐教师"和"风格多样性教师"，然后 OPD 蒸馏到学生，避免 reward conflict 的跷跷板效应。<em>Tradeoff</em>：训练成本大幅上升（多个 teacher 同时在线需要显存），参考笔记 01 中 Gemini 审核意见的 Semi-On-Policy 退让方案。</p>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     Primary source
+     ══════════════════════════════════════════════ -->
+<div class="primary-source">
+  <div class="primary-source-label">推荐原始文献</div>
+  <p><strong><a href="https://arxiv.org/abs/2604.00626">OPD Survey (arXiv:2604.00626)</a></strong> — Song & Zheng, 2026</p>
+  <p>这是目前最完整的 On-Policy Distillation 综述。Abstract + Section 2（KL 框架形式化）+ Table 1（方法演变）是最值得精读的部分。读完后，你对 KL 框架的理解会比今天更系统。</p>
+</div>
+
+<hr>
+
+<div class="lesson-footer">
+  <p><strong>下一步：</strong>如果这 6 道题有任何卡壳的地方——概念模糊、答案不确定、想深挖某个角度——直接告诉 Claude，它会针对那个点给你更深的讲解或追加练习题。</p>
+  <p style="margin-top:0.8rem;"><a href="../reference/">参考文档</a> &nbsp;·&nbsp; <a href="../10_SFT与RL的KL散度视角及On-Policy蒸馏.md">笔记 10（KL 框架）</a> &nbsp;·&nbsp; <a href="../01_SFT_RL_OPD在DiT图像生成中的区别.md">笔记 01（SFT/RL/OPD）</a></p>
+</div>
+
+<script>
+function reveal(btn) {
+  const answer = btn.nextElementSibling;
+  answer.classList.add('visible');
+  btn.textContent = '▼ 答案已展开';
+  btn.style.color = 'var(--text-sub)';
+  btn.disabled = true;
+}
+</script>
+
+</body>
+</html>
